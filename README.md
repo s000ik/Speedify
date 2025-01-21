@@ -1,6 +1,6 @@
 # spicetify-extensions
 
-Consists of my spicetify extensions: Speedify
+Home of Speedify
 
 ## Speedify
 ### Boost performance of spotify in a click
