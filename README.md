@@ -1,7 +1,3 @@
-# spicetify-extensions
-
-Home of Speedify
-
 ## Speedify
 ### Boost performance of spotify in a click
 
