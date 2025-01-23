@@ -5,5 +5,5 @@ Speeds up the Spotify desktop client by optimizing animations, virtual scrolling
 
 <div align="center">
   <br>
-  <img src="speedify/Icon.png" alt="Speedify">
+  <img src="Icon.png" alt="Speedify">
 </div>
