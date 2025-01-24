@@ -1,19 +1,19 @@
 [
     {
-      "name": "speedify",
-      "description": "Boosts performance using various optimizations", 
-      "preview": "speedify/Icon.png",
-      "main": "speedify/speedify.js",
-      "readme": "speedify/README.md",
-      "authors": [
-          {
-              "name": "Satwik Singh",
-              "url": "https://github.com/s000ik"
-          }
-      ],
-      "tags": [
-          "Interface",
-          "QOL"
-      ]
+        "name": "Speedify",
+        "description": "Boosts performance using various optimizations",
+        "preview": "./Icon.png",
+        "main": "./speedify.js", 
+        "readme": "./README.md",
+        "authors": [
+            {
+                "name": "Satwik Singh",
+                "url": "https://github.com/s000ik"
+            }
+        ],
+        "tags": [
+            "Interface",
+            "QOL"
+        ]
     }
 ]
