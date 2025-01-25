@@ -52,11 +52,6 @@ This extension boosts Spotify's performance by optimizing animations, implementi
 
 ---
 
-## Configuration
-No configuration needed—works automatically after installation.
-
----
-
 ## Uninstallation
 
 ### Via Marketplace
