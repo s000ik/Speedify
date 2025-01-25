@@ -25,11 +25,9 @@ This extension boosts Spotify's performance by optimizing animations, implementi
 ---
 
 ## Performance Improvements
-- Up to 50% reduction in CPU usage.
 - Smoother scrolling and animations.
 - Reduced memory footprint.
 - Faster loading times.
-- Better battery life on laptops.
 
 ---
 
