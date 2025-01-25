@@ -1,141 +1,96 @@
-// NAME: Speedify
-// AUTHOR: Satwik Singh
-// DESCRIPTION: Speeds up the Spotify desktop client by optimizing animations, virtual scrolling, and memory usage.
-
 (function spotifyOptimizer() {
   if (!document.body) {
-      setTimeout(spotifyOptimizer, 100);
-      return;
+    setTimeout(spotifyOptimizer, 100);
+    return;
   }
 
   // Performance CSS optimizations
   const style = document.createElement('style');
   style.innerHTML = `
-      /* Hardware acceleration & paint containment */
-      .Root__main-view, .Root__nav-bar, .Root__right-sidebar {
-          transform: translateZ(0);
-          contain: paint layout style;
-          will-change: transform;
-      }
-      
-      /* Reduce repaints for scrolling elements */
-      .main-view-container__scroll-node,
-      .os-viewport {
-          contain: paint;
-          will-change: transform;
-      }
+    /* Hardware acceleration for scrollable elements */
+    .Root__main-view, 
+    .Root__nav-bar, 
+    .Root__right-sidebar,
+    .main-view-container__scroll-node,
+    .os-viewport,
+    .main-trackList-trackList,
+    [role="grid"],
+    .contentSpacing {
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
 
-      /* Optimize animations */
-      .animation-sprite {
-          will-change: transform;
-      }
-
-      /* Reduce memory usage for hidden elements */
-      .hidden, 
-      .collapsed {
-          content-visibility: hidden;
-          contain: strict;
-      }
+    /* Optimize animations */
+    .animation-sprite {
+      will-change: transform;
+    }
   `;
   document.head.appendChild(style);
 
-  // Virtual scroll implementation
-  class VirtualScroller {
-      constructor(container, itemHeight = 50) {
-          this.container = container;
-          this.itemHeight = itemHeight;
-          this.items = [];
-          this.visibleItems = new Set();
-          this.init();
-      }
-
-      init() {
-          this.container.style.position = 'relative';
-          this.onScroll = this.onScroll.bind(this);
-          this.container.addEventListener('scroll', this.onScroll, { passive: true });
-      }
-
-      onScroll() {
-          requestAnimationFrame(() => {
-              const start = Math.floor(this.container.scrollTop / this.itemHeight);
-              const end = start + Math.ceil(this.container.clientHeight / this.itemHeight);
-              this.renderItems(start, end);
-          });
-      }
-
-      renderItems(start, end) {
-          // Remove items no longer visible
-          for (const index of this.visibleItems) {
-              if (index < start || index > end) {
-                  this.hideItem(index);
-              }
-          }
-          // Add newly visible items
-          for (let i = start; i <= end; i++) {
-              if (this.items[i] && !this.visibleItems.has(i)) {
-                  this.showItem(i);
-              }
-          }
-      }
-
-      hideItem(index) {
-          const item = this.items[index];
-          if (item) {
-              item.style.display = 'none';
-              this.visibleItems.delete(index);
-          }
-      }
-
-      showItem(index) {
-          const item = this.items[index];
-          if (item) {
-              item.style.display = '';
-              item.style.position = 'absolute';
-              item.style.top = `${index * this.itemHeight}px`;
-              this.visibleItems.add(index);
-          }
-      }
-  }
-
-  // Memory management
-  const clearCaches = () => {
-      // Clear image caches older than 5 minutes
-      document.querySelectorAll('img').forEach(img => {
-          if (img.complete && !img.isConnected) {
-              img.src = '';
-          }
-      });
+  // Optimize scrollable elements
+  const optimizeScrolling = () => {
+    const elements = document.querySelectorAll('*');
+    
+    elements.forEach(element => {
+      const style = window.getComputedStyle(element);
+      const isScrollable = ['auto', 'scroll'].includes(style.overflow) || 
+                          ['auto', 'scroll'].includes(style.overflowY);
       
-      // Clear old history entries
-      if (window.history.length > 50) {
-          window.history.go(-(window.history.length - 50));
+      // Skip special UI elements
+      const isSpecialElement = element.closest('#context-menu') ||
+                              element.classList.contains('popup') ||
+                              element.getAttribute('role') === 'dialog' ||
+                              element.getAttribute('aria-haspopup') === 'true';
+
+      if (isScrollable && !isSpecialElement && !element.hasAttribute('data-optimized')) {
+        element.style.willChange = 'transform';
+        element.style.transform = 'translate3d(0, 0, 0)';
+        element.style.backfaceVisibility = 'hidden';
+        element.setAttribute('data-optimized', 'true');
       }
+    });
   };
 
-  // Apply virtual scrolling to long lists
-  document.querySelectorAll('.main-trackList-trackList').forEach(list => {
-      new VirtualScroller(list);
+  // Watch for DOM changes
+  const observer = new MutationObserver(optimizeScrolling);
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
   });
 
-  // Periodic cleanup
-  setInterval(clearCaches, 300000); // Every 5 minutes
+  // Handle navigation
+  const originalPushState = history.pushState;
+  history.pushState = function(...args) {
+    originalPushState.apply(this, args);
+    setTimeout(optimizeScrolling, 100);
+  };
 
-  // Throttle animations when unfocused
+  window.addEventListener('popstate', () => setTimeout(optimizeScrolling, 100));
+
+  // Memory optimization
+  const clearCaches = () => {
+    document.querySelectorAll('img').forEach(img => {
+      if (img.complete && !img.isConnected) {
+        img.src = '';
+      }
+    });
+  };
+
+  // Performance optimizations for background tabs
   let focused = true;
   window.addEventListener('focus', () => {
-      focused = true;
-      document.body.style.animationPlayState = 'running';
+    focused = true;
+    document.body.style.animationPlayState = 'running';
   });
   
   window.addEventListener('blur', () => {
-      focused = false;
-      document.body.style.animationPlayState = 'paused';
-      clearCaches();
+    focused = false;
+    document.body.style.animationPlayState = 'paused';
+    clearCaches();
   });
 
-  // Cancel stale requests
-  const controller = new AbortController();
-  window.addEventListener('popstate', () => {
-      controller.abort();
-  });
+  // Initial optimization
+  optimizeScrolling();
 })();
