@@ -1,14 +1,14 @@
+<div align="center">
+  <br>
+  <img src="./images/Icon.png" alt="Speedify">
+</div>
+
 # Speedify
 ## Boost performance of Spotify in a click
 
 Speeds up the Spotify desktop client by optimizing animations, virtual scrolling, and memory usage.
 
 ⭐ If this extension helped you, please star the repository to help others find it!
-
-<div align="center">
-  <br>
-  <img src="Icon.png" alt="Speedify">
-</div>
 
 This extension boosts Spotify's performance by optimizing animations, implementing virtual scrolling for long lists, and improving memory management.
 
