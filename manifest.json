@@ -1,13 +1,13 @@
 [
     {
       "name": "Speedify",
-      "description": "Smoother Spotify experience",
-      "preview": "Icon.png",
-      "main": "speedify.js",
+      "description": "A Smoother Spotify experience",
+      "preview": "./images/icon.png", 
+      "main": "./dist/speedify.js",
       "readme": "README.md",
       "authors": [
           { "name": "Satwik Singh", "url": "https://github.com/s000ik" }
       ],
       "tags": ["Interface", "Performance", "QOL", "Utility", "Scrolling"]
     }
-  ]
+]
