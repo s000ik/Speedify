@@ -2,7 +2,7 @@
     {
       "name": "Speedify",
       "description": "A Smoother Spotify experience",
-      "preview": "./images/icon.png", 
+      "preview": "./images/Icon.png", 
       "main": "./dist/speedify.js",
       "readme": "README.md",
       "authors": [
