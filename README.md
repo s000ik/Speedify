@@ -1,10 +1,11 @@
-<p align="center">
- <img src="./images/Icon.png" height="128" alt="Speedify">
-
+<div align="center">
+<div height="256" width="256">
+ <img src="./images/Icon.png" alt="Speedify" width="256" height="256">
+</div>
  <h1 align="center">
    <a href="https://github.com/s000ik/speedify" style="text-decoration: none;">Speedify</a>
  </h1>
-</p>
+</div>
 
 This extension for Spotify boosts performance by optimizing animations, implementing virtual scrolling, and improving memory usage.
 
