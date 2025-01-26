@@ -7,139 +7,121 @@
     await new Promise(resolve => setTimeout(resolve, 10));
   }
 
+  const allowedOverflow = ["auto", "scroll"];
+
+  // Optimized debounce with proper typing
+  const debounce = <T extends (...args: any[]) => void>(
+    fn: T,
+    delay: number,
+    immediate = false
+  ) => {
+    let timeoutId: NodeJS.Timeout | undefined;
+    return (...args: Parameters<T>) => {
+      const callNow = immediate && !timeoutId;
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        timeoutId = undefined;
+        if (!immediate) fn(...args);
+      }, delay);
+      if (callNow) fn(...args);
+    };
+  };
+
+  // Optimized RAF throttle for smooth animations
+  const rafThrottle = <T extends (...args: any[]) => void>(fn: T) => {
+    let scheduledId: number | null = null;
+    return (...args: Parameters<T>) => {
+      if (scheduledId) return;
+      scheduledId = requestAnimationFrame(() => {
+        fn(...args);
+        scheduledId = null;
+      });
+    };
+  };
+
+  // WeakMap for style caching
+  const elementCache = new WeakMap<HTMLElement, CSSStyleDeclaration>();
+  const getComputedStyleCached = (element: HTMLElement) => {
+    if (!elementCache.has(element)) {
+      elementCache.set(element, window.getComputedStyle(element));
+    }
+    return elementCache.get(element);
+  };
+
   const optimization = () => {
-    const elements = document.querySelectorAll<HTMLElement>("*");
+    // Use a more specific selector for better performance
+    const elements = document.querySelectorAll<HTMLElement>('[style*="overflow"],[style*="overflow-y"]');
+    const elementsToOptimize: HTMLElement[] = [];
 
     elements.forEach((element) => {
-      const { overflow, overflowY } = window.getComputedStyle(element);
-      const isScrollable = ["auto", "scroll"].includes(overflow) || 
-                          ["auto", "scroll"].includes(overflowY);
+      if (element.hasAttribute("data-optimized")) return;
+
+      const style = getComputedStyleCached(element);
+      const isScrollable = style && (allowedOverflow.includes(style.overflow) || 
+                          allowedOverflow.includes(style.overflowY));
       
+      // Skip optimization for special elements
       const isContextMenu = element.closest("#context-menu");
       const isPopup = element.classList.contains("popup");
       const isDialog = element.getAttribute("role") === "dialog";
       const isAriaHasPopup = element.getAttribute("aria-haspopup") === "true";
 
       if (isScrollable && !isContextMenu && !isPopup && !isDialog && !isAriaHasPopup) {
-        if (!element.hasAttribute("data-optimized")) {
+        elementsToOptimize.push(element);
+      }
+    });
+
+    if (elementsToOptimize.length > 0) {
+      requestAnimationFrame(() => {
+        elementsToOptimize.forEach(element => {
+          // Apply GPU acceleration
           element.style.willChange = "transform";
           element.style.transform = "translate3d(0, 0, 0)";
-          element.style.backfaceVisibility = "hidden";
-          element.style.perspective = "1000px";
+          
+          // Enable smooth scrolling
+          element.style.scrollBehavior = "smooth";
+          
+          // Mark as optimized
           element.setAttribute("data-optimized", "true");
-        }
-      }
-    });
-  };
 
-  // Add enhanced CSS optimizations
-  const style = document.createElement('style');
-  style.innerHTML = `
-    /* Optimize main containers */
-    .Root__main-view, 
-    .Root__nav-bar, 
-    .Root__right-sidebar,
-    .main-view-container__scroll-node,
-    .os-viewport,
-    .main-trackList-trackList,
-    [role="grid"],
-    .contentSpacing {
-      transform: translate3d(0, 0, 0);
-      will-change: transform;
-      backface-visibility: hidden;
-      perspective: 1000px;
-    }
-
-    /* Optimize image loading */
-    img {
-      content-visibility: auto;
-      contain: paint;
-    }
-
-    /* Optimize animations */
-    .main-view-container__scroll-node {
-      scroll-behavior: smooth;
-      overflow-x: hidden !important;
-    }
-
-    /* Reduce paint operations */
-    .main-topBar-background,
-    .main-entityHeader-overlay,
-    .main-actionBarBackground-background {
-      contain: paint;
-    }
-
-    /* Optimize large lists */
-    .main-trackList-trackList,
-    .main-rootlist-rootlist {
-      contain: content;
-      content-visibility: auto;
-    }
-  `;
-  document.head.appendChild(style);
-
-  // Background optimization
-  let focused = true;
-  window.addEventListener('focus', () => {
-    focused = true;
-    document.body.style.animationPlayState = 'running';
-  });
-  
-  window.addEventListener('blur', () => {
-    focused = false;
-    document.body.style.animationPlayState = 'paused';
-    // Clear unnecessary resources
-    performance.clearResourceTimings();
-    if ((window as any).gc) (window as any).gc();
-  });
-
-  // Optimize image loading
-  const imageObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.target instanceof HTMLImageElement) {
-        if (entry.isIntersecting) {
-          entry.target.loading = 'eager';
-        } else {
-          entry.target.loading = 'lazy';
-        }
-      }
-    });
-  });
-
-  // Watch for DOM changes
-  const observer = new MutationObserver((mutations) => {
-    if (focused) {
-      optimization();
-      mutations.forEach(mutation => {
-        mutation.addedNodes.forEach(node => {
-          if (node instanceof HTMLElement) {
-            const images = node.getElementsByTagName('img');
-            Array.from(images).forEach(img => imageObserver.observe(img));
-          }
+          // Add passive scroll listener
+          element.addEventListener('scroll', rafThrottle(() => {
+            requestAnimationFrame(() => {
+              element.style.pointerEvents = "none";
+              requestAnimationFrame(() => {
+                element.style.pointerEvents = "auto";
+              });
+            });
+          }), { passive: true });
         });
       });
+    }
+  };
+
+  // Optimize mutation observer
+  const debouncedOptimization = debounce(optimization, 100, true);
+  const observer = new MutationObserver((mutations) => {
+    if (mutations.some(m => m.addedNodes.length > 0 || m.type === "attributes")) {
+      debouncedOptimization();
     }
   });
 
   observer.observe(document.body, {
     childList: true,
-    subtree: true
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["class", "style"]
   });
 
   // Handle navigation
   const originalPushState = history.pushState;
   history.pushState = function(...args) {
     originalPushState.apply(this, args);
-    if (focused) setTimeout(optimization, 100);
+    debouncedOptimization();
   };
 
-  window.addEventListener("popstate", () => {
-    if (focused) setTimeout(optimization, 100);
-  });
+  window.addEventListener("popstate", debouncedOptimization);
 
   // Initial optimization
   optimization();
-
-  // Optimize all existing images
-  document.querySelectorAll('img').forEach(img => imageObserver.observe(img));
 })();

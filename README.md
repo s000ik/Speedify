@@ -1,69 +1,48 @@
-<div align="center">
-  <br>
-  <img src="./images/Icon.png" alt="Speedify">
-</div>
+<p align="center">
+ <img src="./images/Icon.png" height="256" alt="Speedify">
 
-# Speedify
-## Boost performance of Spotify in a click
+ <h1 align="center">
+   <a href="https://github.com/s000ik/speedify" style="text-decoration: none;">Speedify</a>
+ </h1>
+</p>
 
-Speeds up the Spotify desktop client by optimizing animations, virtual scrolling, and memory usage.
+This extension for Spotify boosts performance by optimizing animations, implementing virtual scrolling, and improving memory usage.
 
-⭐ If this extension helped you, please star the repository to help others find it!
+⭐ If this extension helped you, please put a star to get it noticed by more people.
 
-This extension boosts Spotify's performance by optimizing animations, implementing virtual scrolling for long lists, and improving memory management.
-
----
+## Dependencies
+To install the extension you need to install [`Spicetify`](https://spicetify.app/docs/advanced-usage/installation) following the instructions in the documentation. After that you can find the `Speedify` extension in the `Spicetify` extension shop.
 
 ## Features
-- Hardware-accelerated animations and transitions.
-- Virtual scrolling for large playlists and lists.
-- Optimized memory management and garbage collection.
-- Reduced CPU usage and smoother scrolling.
-- Background tab performance improvements.
-- Smart resource loading and caching.
+- Hardware-accelerated animations and transitions
+- Virtual scrolling for large playlists and lists
+- Optimized memory management and garbage collection
+- Reduced CPU usage and smoother scrolling
+- Background tab performance improvements
+- Smart resource loading and caching
 
----
+## Manual Installation
+1. Download the [`speedify.js`](https://github.com/s000ik/speedify/blob/main/dist/speedify.js) file and place it in:
 
-## Performance Improvements
-- Smoother scrolling and animations.
-- Reduced memory footprint.
-- Faster loading times.
+| Platform    | Path                             |
+|-------------|:--------------------------------:|
+| Windows     | `%appdata%\spicetify\Extensions` |
+| Linux/MacOS | `~/.config/spicetify/Extensions` |
 
----
-
-## Installation
-
-### Marketplace (Recommended)
-1. Install [Spicetify](https://spicetify.app/docs/advanced-usage/installation).
-2. Open Spotify and navigate to the Marketplace.
-3. Search for "Speedify" and click **Install**.
-
-### Manual Installation
-1. Download `speedify.js` and place it in:
-   - **Windows**: `%appdata%\spicetify\Extensions\`
-   - **Linux/MacOS**: `~/.config/spicetify/Extensions/`
-2. Run:
-   ```bash
-   spicetify config extensions speedify.js
-   spicetify apply
-   ```
-
----
+2. Activate the extension using:
+```console
+$ spicetify config extensions speedify.js
+$ spicetify apply
+```
 
 ## Uninstallation
+1. Disable the extension using:
+```console
+$ spicetify config extensions speedify.js-
+$ spicetify apply
+```
 
-### Via Marketplace
-Click **Uninstall** on the Speedify card.
-
-### Manual
-1. Run:
-   ```bash
-   spicetify config extensions speedify.js-
-   spicetify apply
-   ```
-
----
+2. Delete the file from step #1 in the installation instructions. (Optional)
 
 ## Support
-
-Issues or suggestions? Open an issue on [GitHub](https://github.com/s000ik/speedify/issues).
+For issues or suggestions, please open an issue on [GitHub](https://github.com/s000ik/speedify/issues).
