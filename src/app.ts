@@ -1,4 +1,4 @@
-import { isScrollableElement } from "./func/is-scrollable-element";
+import { isScrollableElement } from "./helpers/is-scrollable-element";
 
 async function main() {
   const optimization = () => {
