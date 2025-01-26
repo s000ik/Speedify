@@ -9,6 +9,18 @@
 
   const allowedOverflow = ["auto", "scroll"] as const;
 
+  // Add global styles for smooth page transitions
+  const style = document.createElement("style");
+  style.innerHTML = `
+    .Root__main-view {
+      transition: opacity 200ms ease-in-out !important;
+    }
+    .Root__main-view--loading {
+      opacity: 0 !important;
+    }
+  `;
+  document.head.appendChild(style);
+
   // Optimized debounce with proper typing
   const debounce = <T extends (...args: any[]) => void>(
     fn: T,
@@ -28,11 +40,9 @@
   };
 
   const optimization = () => {
-    // Use a more specific selector for better performance
-    const elements = document.querySelectorAll<HTMLElement>('[style*="overflow"],[style*="overflow-y"]');
-    const elementsToOptimize: HTMLElement[] = [];
-
-    elements.forEach((element) => {
+    // Simplified selector that matches all scrollable elements
+    document.querySelectorAll("*").forEach(element => {
+      if (!(element instanceof HTMLElement)) return;
       if (element.hasAttribute("data-optimized")) return;
 
       const { overflow, overflowY } = window.getComputedStyle(element);
@@ -46,67 +56,52 @@
       const isAriaHasPopup = element.getAttribute("aria-haspopup") === "true";
 
       if (isScrollable && !isContextMenu && !isPopup && !isDialog && !isAriaHasPopup) {
-        elementsToOptimize.push(element);
+        // Apply minimal GPU acceleration
+        element.style.willChange = "transform";
+        element.style.transform = "translate3d(0,0,0)";
+        
+        // Enable smooth scrolling
+        element.style.scrollBehavior = "smooth";
+        
+        // Mark as optimized
+        element.setAttribute("data-optimized", "true");
       }
     });
+  };
 
-    if (elementsToOptimize.length > 0) {
-      requestAnimationFrame(() => {
-        elementsToOptimize.forEach(element => {
-          // Enable smooth scrolling
-          element.style.scrollBehavior = "smooth";
-          
-          // Add subtle hardware acceleration without affecting image loading
-          element.style.backfaceVisibility = "hidden";
-          element.style.perspective = "1000px";
-          element.style.transform = "translate3d(0,0,0)";
-          
-          // Pre-load images in viewport
-          const images = element.querySelectorAll<HTMLImageElement>("img");
-          images.forEach(img => {
-            if (!img.loading) {
-              img.loading = "eager"; // Force eager loading
-            }
-            if (img.getAttribute("data-lazy")) {
-              img.src = img.getAttribute("data-lazy")!;
-              img.removeAttribute("data-lazy");
-            }
-          });
-
-          // Mark as optimized
-          element.setAttribute("data-optimized", "true");
-        });
-      });
+  // Handle page transitions
+  const handlePageTransition = () => {
+    const mainView = document.querySelector(".Root__main-view");
+    if (mainView) {
+      mainView.classList.add("Root__main-view--loading");
+      setTimeout(() => {
+        mainView.classList.remove("Root__main-view--loading");
+        optimization();
+      }, 100);
     }
   };
 
   // Optimize mutation observer
   const debouncedOptimization = debounce(optimization, 100, true);
   const observer = new MutationObserver((mutations) => {
-    if (mutations.some(m => {
-      return m.addedNodes.length > 0 || 
-             (m.type === "attributes" && 
-              (m.attributeName === "style" || m.attributeName === "class"))
-    })) {
+    if (mutations.some(m => m.addedNodes.length > 0)) {
       debouncedOptimization();
     }
   });
 
   observer.observe(document.body, {
     childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ["class", "style"]
+    subtree: true
   });
 
-  // Handle navigation
+  // Handle navigation with transitions
   const originalPushState = history.pushState;
   history.pushState = function(...args) {
     originalPushState.apply(this, args);
-    debouncedOptimization();
+    handlePageTransition();
   };
 
-  window.addEventListener("popstate", debouncedOptimization);
+  window.addEventListener("popstate", handlePageTransition);
 
   // Initial optimization
   optimization();
