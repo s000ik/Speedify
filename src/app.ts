@@ -39,15 +39,6 @@
     };
   };
 
-  // WeakMap for style caching
-  const elementCache = new WeakMap<HTMLElement, CSSStyleDeclaration>();
-  const getComputedStyleCached = (element: HTMLElement) => {
-    if (!elementCache.has(element)) {
-      elementCache.set(element, window.getComputedStyle(element));
-    }
-    return elementCache.get(element);
-  };
-
   const optimization = () => {
     // Use a more specific selector for better performance
     const elements = document.querySelectorAll<HTMLElement>('[style*="overflow"],[style*="overflow-y"]');
@@ -56,9 +47,9 @@
     elements.forEach((element) => {
       if (element.hasAttribute("data-optimized")) return;
 
-      const style = getComputedStyleCached(element);
-      const isScrollable = style && (allowedOverflow.includes(style.overflow) || 
-                          allowedOverflow.includes(style.overflowY));
+      const { overflow, overflowY } = window.getComputedStyle(element);
+      const isScrollable = allowedOverflow.includes(overflow) || 
+                          allowedOverflow.includes(overflowY);
       
       // Skip optimization for special elements
       const isContextMenu = element.closest("#context-menu");
@@ -74,25 +65,11 @@
     if (elementsToOptimize.length > 0) {
       requestAnimationFrame(() => {
         elementsToOptimize.forEach(element => {
-          // Apply GPU acceleration
-          element.style.willChange = "transform";
-          element.style.transform = "translate3d(0, 0, 0)";
-          
           // Enable smooth scrolling
           element.style.scrollBehavior = "smooth";
           
           // Mark as optimized
           element.setAttribute("data-optimized", "true");
-
-          // Add passive scroll listener
-          element.addEventListener('scroll', rafThrottle(() => {
-            requestAnimationFrame(() => {
-              element.style.pointerEvents = "none";
-              requestAnimationFrame(() => {
-                element.style.pointerEvents = "auto";
-              });
-            });
-          }), { passive: true });
         });
       });
     }
