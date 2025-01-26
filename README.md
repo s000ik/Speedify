@@ -1,5 +1,5 @@
 <p align="center">
- <img src="./images/Icon.png" height="256" alt="Speedify">
+ <img src="./images/Icon.png" height="128" alt="Speedify">
 
  <h1 align="center">
    <a href="https://github.com/s000ik/speedify" style="text-decoration: none;">Speedify</a>
