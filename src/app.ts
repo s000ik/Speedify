@@ -7,7 +7,7 @@
     await new Promise(resolve => setTimeout(resolve, 10));
   }
 
-  const allowedOverflow = ["auto", "scroll"];
+  const allowedOverflow = ["auto", "scroll"] as const;
 
   // Optimized debounce with proper typing
   const debounce = <T extends (...args: any[]) => void>(
@@ -27,18 +27,6 @@
     };
   };
 
-  // Optimized RAF throttle for smooth animations
-  const rafThrottle = <T extends (...args: any[]) => void>(fn: T) => {
-    let scheduledId: number | null = null;
-    return (...args: Parameters<T>) => {
-      if (scheduledId) return;
-      scheduledId = requestAnimationFrame(() => {
-        fn(...args);
-        scheduledId = null;
-      });
-    };
-  };
-
   const optimization = () => {
     // Use a more specific selector for better performance
     const elements = document.querySelectorAll<HTMLElement>('[style*="overflow"],[style*="overflow-y"]');
@@ -48,8 +36,8 @@
       if (element.hasAttribute("data-optimized")) return;
 
       const { overflow, overflowY } = window.getComputedStyle(element);
-      const isScrollable = allowedOverflow.includes(overflow) || 
-                          allowedOverflow.includes(overflowY);
+      const isScrollable = allowedOverflow.includes(overflow as any) || 
+                          allowedOverflow.includes(overflowY as any);
       
       // Skip optimization for special elements
       const isContextMenu = element.closest("#context-menu");
@@ -68,6 +56,23 @@
           // Enable smooth scrolling
           element.style.scrollBehavior = "smooth";
           
+          // Add subtle hardware acceleration without affecting image loading
+          element.style.backfaceVisibility = "hidden";
+          element.style.perspective = "1000px";
+          element.style.transform = "translate3d(0,0,0)";
+          
+          // Pre-load images in viewport
+          const images = element.querySelectorAll<HTMLImageElement>("img");
+          images.forEach(img => {
+            if (!img.loading) {
+              img.loading = "eager"; // Force eager loading
+            }
+            if (img.getAttribute("data-lazy")) {
+              img.src = img.getAttribute("data-lazy")!;
+              img.removeAttribute("data-lazy");
+            }
+          });
+
           // Mark as optimized
           element.setAttribute("data-optimized", "true");
         });
@@ -78,7 +83,11 @@
   // Optimize mutation observer
   const debouncedOptimization = debounce(optimization, 100, true);
   const observer = new MutationObserver((mutations) => {
-    if (mutations.some(m => m.addedNodes.length > 0 || m.type === "attributes")) {
+    if (mutations.some(m => {
+      return m.addedNodes.length > 0 || 
+             (m.type === "attributes" && 
+              (m.attributeName === "style" || m.attributeName === "class"))
+    })) {
       debouncedOptimization();
     }
   });
