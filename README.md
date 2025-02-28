@@ -1,14 +1,17 @@
+# [Speedify](https://github.com/s000ik/speedify) 
+
+<br>
+
 <div align="center">
-<div height="256" width="256">
- <img src="./images/Icon.png" alt="Speedify" width="256" height="256">
+<div height="400" width="400">
+ <img src="./images/Icon.png" alt="Speedify" width="250" height="250">
 </div>
- <h1 align="center">
-   <a href="https://github.com/s000ik/speedify" style="text-decoration: none;">Speedify</a>
- </h1>
 </div>
-
+ 
+<br>
 This extension for Spotify boosts performance by optimizing animations, implementing virtual scrolling, and improving memory usage.
-
+<br>
+<br>
 ⭐ If this extension helped you, please put a star to get it noticed by more people.
 
 ## Dependencies
@@ -21,6 +24,10 @@ To install the extension you need to install [`Spicetify`](https://spicetify.app
 - Reduced CPU usage and smoother scrolling
 - Background tab performance improvements
 - Smart resource loading and caching
+
+## Marketplace Installation
+1. Search for `Speedify` in `Spicetify Marketplace`
+2. Click the download button and select reload now
 
 ## Manual Installation
 1. Download the [`speedify.js`](https://github.com/s000ik/speedify/blob/main/dist/speedify.js) file and place it in:
@@ -45,5 +52,8 @@ $ spicetify apply
 
 2. Delete the file from step #1 in the installation instructions. (Optional)
 
-## Support
-For issues or suggestions, please open an issue on [GitHub](https://github.com/s000ik/speedify/issues).
+## Support & Troubleshooting
+
+For assistance, please:
+- Check existing issues
+- Open a new issue if unresolved
